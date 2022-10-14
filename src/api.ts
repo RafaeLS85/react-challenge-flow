@@ -1,5 +1,6 @@
 import { City, RawWeather, Weather } from "./types";
 
+const apiKey = import.meta.env.VITE_API_KEY;
 
 export function kelvinToCelsius(temp: number): number {
   return Math.round(temp - 273.15)
@@ -24,14 +25,28 @@ export function formatWeather(weather: RawWeather): Weather{
 const api = {
   weather: {
     fetch: async (city: City ): Promise<Weather> => {    
+      console.log({city})
 
-      const request = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${city.lat}&lon=${city.lon}&appid=${import.meta.env.VITE_API_KEY}`)
-
+      //Call 5 day / 3 hour forecast data
+      const request = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${city.lat}&lon=${city.lon}&appid=${apiKey}`)
       const response = await request.json()
-
-      return formatWeather(response)
-     
+      return formatWeather(response)     
     },
+    fetchByGeo: async (lat: number | undefined, lon: number | undefined): Promise<Weather> => {
+
+      if(!lat && !lon){
+        return {} as Weather
+      }
+
+      const request = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`)
+      const response = await request.json()
+      return response
+    },
+    fetchByName: async (name:string): Promise<Weather> => {
+      const request = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${name}&appid=${apiKey}`)
+      const response = await request.json()
+      return response;
+    } 
   },
 };
 

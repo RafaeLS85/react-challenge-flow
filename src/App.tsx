@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "./api";
 import { Weather, City } from "./types";
+import { useGeolocated } from "react-geolocated";
 
 const CITIES: Record<string, City> = {
   "perez": {
@@ -38,7 +39,20 @@ const CITIES: Record<string, City> = {
 function App() {
   const [status, setStatus] = useState<"pending" | "resolved">("pending");
   const [weather, setWeather] = useState<Weather | null>(null);
+  
+  
+  
+  // use Geolocalization
+  const { coords, isGeolocationAvailable, isGeolocationEnabled } =
+  useGeolocated({
+    positionOptions: {
+      enableHighAccuracy: false,
+    },
+    userDecisionTimeout: 5000,
+  });
+  
   const [city, setCity] = useState<City>(CITIES['perez']);
+
 
   function handleChangeCity(event: React.ChangeEvent<HTMLSelectElement>) {
     const city = event.target.value as keyof typeof CITIES
@@ -46,11 +60,18 @@ function App() {
   }
 
   useEffect(() => {    
-      api.weather.fetch(city).then((weather) => {
-        setWeather(weather);
-        setStatus("resolved");
-      });    
-  }, [city]);
+    
+      api.weather.fetchByGeo(coords?.latitude, coords?.longitude).then((weather) => {
+        console.log({weather})
+      });
+  }, [coords]);
+
+  useEffect(() => {    
+    api.weather.fetch(city).then((weather) => {
+      setWeather(weather);
+      setStatus("resolved");
+    });
+}, [city]);
 
   if (status === "pending") {
     return <div>Cargando...</div>;
@@ -62,8 +83,51 @@ function App() {
 
   console.log(weather.forecast.length)
 
+  if(!isGeolocationAvailable){
+    <div>Your browser does not support Geolocation</div>
+  }
+
+  if(!isGeolocationEnabled){
+    <div>Geolocation is not enabled</div>
+  }
+
+
+// ) : coords ? (
+//     <table>
+//         <tbody>
+//             <tr>
+//                 <td>latitude</td>
+//                 <td>{coords.latitude}</td>
+//             </tr>
+//             <tr>
+//                 <td>longitude</td>
+//                 <td>{coords.longitude}</td>
+//             </tr>
+//             <tr>
+//                 <td>altitude</td>
+//                 <td>{coords.altitude}</td>
+//             </tr>
+//             <tr>
+//                 <td>heading</td>
+//                 <td>{coords.heading}</td>
+//             </tr>
+//             <tr>
+//                 <td>speed</td>
+//                 <td>{coords.speed}</td>
+//             </tr>
+//         </tbody>
+//     </table>
+// ) : (
+//     <div>Getting the location data&hellip; </div>
+// );
+
+
   return (
     <main>
+      <h1 className="text-3xl font-bold underline">
+      Weather App
+    </h1>
+    
       <select value={city?.id} onChange={handleChangeCity}>
         {Object.values(CITIES).map((city) => (
           <option key={city.id} value={city.id}>
@@ -80,5 +144,6 @@ function App() {
     </main>
   );
 }
+
 
 export default App;
