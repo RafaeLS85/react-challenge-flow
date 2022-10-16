@@ -41,8 +41,7 @@ function App() {
   const [weather, setWeather] = useState<Weather | null>(null);
   
   
-  
-  // use Geolocalization
+  // use Geolocation
   const { coords, isGeolocationAvailable, isGeolocationEnabled } =
   useGeolocated({
     positionOptions: {
@@ -59,8 +58,7 @@ function App() {
     setCity(CITIES[city]); 
   }
 
-  useEffect(() => {    
-    
+  useEffect(() => {     
       api.weather.fetchByGeo(coords?.latitude, coords?.longitude).then((weather) => {
         console.log({weather})
       });
@@ -81,7 +79,7 @@ function App() {
     return <div>No se encontraron datos</div>;
   }
 
-  console.log(weather.forecast.length)
+  // console.log(weather.forecast.length)
 
   if(!isGeolocationAvailable){
     <div>Your browser does not support Geolocation</div>
@@ -90,36 +88,6 @@ function App() {
   if(!isGeolocationEnabled){
     <div>Geolocation is not enabled</div>
   }
-
-
-// ) : coords ? (
-//     <table>
-//         <tbody>
-//             <tr>
-//                 <td>latitude</td>
-//                 <td>{coords.latitude}</td>
-//             </tr>
-//             <tr>
-//                 <td>longitude</td>
-//                 <td>{coords.longitude}</td>
-//             </tr>
-//             <tr>
-//                 <td>altitude</td>
-//                 <td>{coords.altitude}</td>
-//             </tr>
-//             <tr>
-//                 <td>heading</td>
-//                 <td>{coords.heading}</td>
-//             </tr>
-//             <tr>
-//                 <td>speed</td>
-//                 <td>{coords.speed}</td>
-//             </tr>
-//         </tbody>
-//     </table>
-// ) : (
-//     <div>Getting the location data&hellip; </div>
-// );
 
 
   return (

@@ -7,14 +7,15 @@ export function kelvinToCelsius(temp: number): number {
 }
 
 export function formatWeather(weather: RawWeather): Weather{
-  const { 0: first, 8: second, 16: third, 24: fourth, 32: fifth } = weather.list
+  console.log(weather)
+  const { 0: first, 8: second, 16: third, 24: fourth, 32: fifth, 39: sixth } = weather.list
 
   return {
     city: {
         id: String(weather.city.id),
         name: weather.city.name
     },
-    forecast: [first, second, third, fourth, fifth].map(forecast => ({
+    forecast: [first, second, third, fourth, fifth, sixth].map(forecast => ({
         min: kelvinToCelsius(forecast.main.temp_min),
         max: kelvinToCelsius(forecast.main.temp_max),
         date: new Date(forecast.dt * 1000).toLocaleDateString('es-AR')
@@ -39,13 +40,11 @@ const api = {
       }
 
       const request = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`)
-      const response = await request.json()
-      return response
+      return await request.json()
     },
     fetchByName: async (name:string): Promise<Weather> => {
       const request = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${name}&appid=${apiKey}`)
-      const response = await request.json()
-      return response;
+      return await request.json()
     } 
   },
 };
